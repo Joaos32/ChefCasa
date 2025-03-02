@@ -7,13 +7,6 @@ from app.core.security import hash_password
 
 router = APIRouter(prefix="/chefs", tags=["Chefs"])
 
-def get_db():
-    db = get_db()
-    try:
-        yield db
-    finally:
-        db.close()
-
 @router.post("/", response_model=ChefResponse)
 def create_chef(chef: ChefCreate, db: Session = Depends(get_db)):
     """Cria um novo chef com senha criptografada."""
@@ -21,7 +14,13 @@ def create_chef(chef: ChefCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Email já registrado")
 
     hashed_password = hash_password(chef.password)
-    new_chef = Chef(name=chef.name, email=chef.email, password_hash=hashed_password, bio=chef.bio)
+    new_chef = Chef(
+        name=chef.name,
+        email=chef.email,
+        password_hash=hashed_password,
+        bio=chef.bio,
+        available=True  # Definir como disponível por padrão
+    )
     db.add(new_chef)
     db.commit()
     db.refresh(new_chef)
