@@ -16,9 +16,9 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # Importar os modelos para que o Alembic possa detectá-los
-from app.models.base import Base
-import app.models.user  # Importar modelos individuais
-import app.models.chef  # Se houver um modelo 'chef', inclua ele também
+from app.models.user import User
+from app.models.chef import Chef  # Adicionando o modelo Chef
+from app.core.database import Base
 
 # Definir a metadata para autogenerate
 target_metadata = Base.metadata  

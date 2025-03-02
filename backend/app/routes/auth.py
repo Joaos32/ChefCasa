@@ -1,24 +1,27 @@
+from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from app.core.auth import hash_password
+from app.core.security import verify_password, create_access_token
 from app.core.database import get_db
 from app.models.user import User
-from app.schemas.user import UserCreate, UserRead
+from app.core.config import settings
 
-router = APIRouter(tags=["Auth"])
+router = APIRouter()
 
-@router.post("/register", response_model=UserRead, status_code=status.HTTP_201_CREATED)
-def register_user(user: UserCreate, db: Session = Depends(get_db)):
-    """Registra um novo usuário com senha criptografada."""
-    existing_user = db.query(User).filter(User.email == user.email).first()
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email já registrado")
+@router.post("/token")
+def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    """Autenticação e geração de token JWT."""
+    user = db.query(User).filter(User.email == form_data.username).first()
 
-    hashed_password = hash_password(user.password)
-    new_user = User(name=user.name, email=user.email, password_hash=hashed_password)
-    
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+    if not user or not verify_password(form_data.password, user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Credenciais inválidas",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
-    return new_user
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(data={"sub": user.email}, expires_delta=access_token_expires)
+
+    return {"access_token": access_token, "token_type": "bearer"}

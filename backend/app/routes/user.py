@@ -2,18 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.schemas.user import UserCreate, UserRead
 from app.models.user import User
-from app.core.database import SessionLocal
+from app.core.database import get_db  # Ajuste aqui para evitar redefinição
 from app.core.security import hash_password
-from app.core.auth import get_current_user  # Importação da autenticação
+from app.core.dependencies import get_current_user  # Ajuste correto da autenticação
 
 router = APIRouter(prefix="/users", tags=["Users"])
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 @router.post("/", response_model=UserRead)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
@@ -22,7 +15,11 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Email já registrado")
 
     hashed_password = hash_password(user.password)
-    new_user = User(name=user.name, email=user.email, hashed_password=hashed_password)  # Alinhado com o modelo
+    new_user = User(
+        name=user.name,
+        email=user.email,
+        password_hash=hashed_password  # Ajuste no nome do campo
+    )
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
