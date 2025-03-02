@@ -5,19 +5,13 @@ class UserBase(BaseModel):
     email: EmailStr
 
 class UserCreate(UserBase):
-    password: str  # Senha em texto puro (iremos hashear depois)
+    password: str
 
-class UserRead(UserBase):
+class UserUpdate(UserBase):
+    pass
+
+class UserOut(UserBase):
     id: int
 
     class Config:
-        from_attributes = True
-
-# Novas classes para autenticação
-class UserLogin(BaseModel):
-    email: EmailStr
-    password: str
-
-class TokenResponse(BaseModel):
-    access_token: str
-    token_type: str
+        orm_mode = True
