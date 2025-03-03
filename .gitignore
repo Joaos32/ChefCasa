@@ -1,3 +1,41 @@
-venv/
-__pycache__/
+# Ignore arquivos do Node.js e React Native
+node_modules/
+yarn.lock
+package-lock.json
+
+# Arquivos de configuração local
 .env
+.env.local
+
+# Cache e logs
+npm-debug.log*
+yarn-error.log*
+
+# iOS
+ios/Pods/
+ios/*.xcodeproj/
+ios/*.xcworkspace/
+ios/xcuserdata/
+
+# Android
+android/.gradle/
+android/app/build/
+android/.idea/
+android/local.properties
+
+# Python e FastAPI
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+
+# Banco de dados local
+*.sqlite3
+db.sqlite3
+
+# Outros
+.DS_Store
+.idea/
+.vscode/
+*.log
