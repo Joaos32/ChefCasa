@@ -15,3 +15,8 @@ class UserOut(UserBase):
 
     class Config:
         orm_mode = True
+
+class UserRead(BaseModel):
+    id: int
+    username: str
+    email: str

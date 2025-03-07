@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-from main import app  # Ajuste o caminho conforme necessário
+from backend.main import app  # Ajuste o caminho conforme necessário
 
 client = TestClient(app)
 
